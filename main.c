@@ -182,7 +182,13 @@ void *mouser(void *vargp){
 
   // Position rendering window, needed maximize
   glfwSetWindowPos(window, 0, 0);
+
+  // Stay alert when user changes size
+  glfwSetWindowSizeCallback (window, window_size_callback);
   
+  // Make a single click
+  int last_state = GLFW_RELEASE;
+
   // Loop until the user closes the window
   while (!glfwWindowShouldClose(window))
   {
@@ -201,13 +207,13 @@ void *mouser(void *vargp){
     mousery = ypos;
     
     // Stay alert when user changes size
-    glfwSetWindowSizeCallback (window, window_size_callback);
+    //glfwSetWindowSizeCallback (window, window_size_callback);
     
     // Here's for printing in terminal
     position ();
       
     // On click it sounds
-    if (state == GLFW_PRESS)
+    if (state == GLFW_PRESS && last_state == GLFW_RELEASE)
     {
       int horizontal = pixelstoHdeg ();
       int vertical = pixelstoVdeg ();
@@ -219,11 +225,13 @@ void *mouser(void *vargp){
       // For playing sound
       cat ();
     }  
+    
+    // Save last click
+    last_state = state;
   }
     
-  // Closed window
+  // Window closed
   printf("\nGoodbye! \n");
-  //exit(-1);
 
   glfwDestroyWindow(window);
   glfwTerminate();

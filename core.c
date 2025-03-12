@@ -93,7 +93,7 @@ void HRTF (int prefix, int suffix){
   }
 
   // Write buffer data in audio file
-  sf_count_t frames_written = sf_writef_float(outfile, output_buffer, signal_frames);
+  sf_count_t frames_written = sf_writef_float(outfile, output_buffer, output_frames);
   if (frames_written < 0) {
     printf("Error writting output file: %s\n", sf_strerror(outfile));
   }
