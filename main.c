@@ -26,27 +26,59 @@
 #include <math.h>
 #include <pthread.h>
 #include <time.h>
+#include <spawn.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 double mouserx, mousery;
-//int mouserstate;
 int widths, heights;
+extern char **environ;
 
 void position(){
   // Print cursor position in terminal
   printf("\rCursor Position at (%0.2f, %0.2f)", mouserx, mousery);
 }
 
-int safe_system(const char *command) {
-    int result = system(command);
-    if (result == -1) {
-        perror("Error executing command");
-    }
-    return result;
+int file_exists(const char *filename) {
+  struct stat buffer;
+  if (stat(filename, &buffer) == 0) {
+    return 1;
+  }
+  return 0;
 }
 
 void cat() {
-    // Play convolved sound
-    safe_system("pw-play output.wav");
+  pid_t pid;
+  char *argv[] = {"pw-play", "output.wav", NULL};
+
+  int status = posix_spawn(&pid, "/usr/bin/pw-play", NULL, NULL, argv, environ);
+
+  if (status != 0) {
+    fprintf(stderr, "Failed to spawn process: %s\n", strerror(status));
+    return;
+  }
+
+  waitpid(pid, &status, 0);
+  if (WIFEXITED(status)) {
+    if (WEXITSTATUS(status) != 0) {
+      fprintf(stderr, "pw-play failed with exit code %d\n", WEXITSTATUS(status));
+    }
+  } else {
+    fprintf(stderr, "Process terminated abnormally\n");
+  }
+}
+
+void play_sound() {
+  const char *filename = "output.wav";
+
+  if (!file_exists(filename)) {
+    fprintf(stderr, "File %s does not exist!\n", filename);
+    return;
+  }
+
+  // Validated sound file
+  cat();
 }
 
 void window_size_callback(GLFWwindow *window, int width, int height){
@@ -236,7 +268,7 @@ void *mouser(void *vargp){
       HRTF (vertical, horizontal);
       
       // For playing sound
-      cat ();
+      play_sound ();
     }  
     
     // Save last click
