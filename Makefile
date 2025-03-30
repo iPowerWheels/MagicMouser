@@ -1,5 +1,9 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -ggdb -fno-omit-frame-pointer -O2 -std=gnu99
+
+CFLAGS = -Wall -Wextra -Werror -ggdb -O2 -std=gnu99 \
+         -fno-omit-frame-pointer -D_FORTIFY_SOURCE=2 -fstack-protector-strong \
+         -fPIE -pie -fsanitize=address,undefined
+
 LIBS = -lsndfile -lm -lglfw -lpthread
 
 SRCS = main.c core.c
@@ -18,4 +22,13 @@ run: $(TARGET)
 	./$(TARGET)
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) core *.core *.out
+
+.PHONY: all clean run
+help:
+	@echo "Usage: make [target]"
+	@echo "Targets:"
+	@echo "  all      Compile the project"
+	@echo "  run      Execute the program"
+	@echo "  clean    Remove compiled files"
+	@echo "Tip: Use 'make -j4' for faster parallel compilation"
