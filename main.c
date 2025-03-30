@@ -28,20 +28,31 @@
 #include <time.h>
 
 double mouserx, mousery;
-int mouserstate;
-int width, height, widths, heights;
+//int mouserstate;
+int widths, heights;
 
 void position(){
   // Print cursor position in terminal
   printf("\rCursor Position at (%0.2f, %0.2f)", mouserx, mousery);
 }
 
-void cat(){
-  // Play convolved sound
-  system("pw-play output.wav");
+int safe_system(const char *command) {
+    int result = system(command);
+    if (result == -1) {
+        perror("Error executing command");
+    }
+    return result;
+}
+
+void cat() {
+    // Play convolved sound
+    safe_system("pw-play output.wav");
 }
 
 void window_size_callback(GLFWwindow *window, int width, int height){
+  // Unused parameter
+  (void)window;
+  
   // Stay alert for window size
   widths = width;
   heights = height;
@@ -151,6 +162,9 @@ void HRTF (int prefix, int suffix);
 
 // Here is mouser function
 void *mouser(void *vargp){
+  // Unused parameter
+  (void)vargp;
+  
   GLFWwindow* window;
   GLFWvidmode* mode;
   char title[]="MagicMouser";
@@ -172,7 +186,6 @@ void *mouser(void *vargp){
   
   if (!window)
   {
-    glfwDestroyWindow(window);
     glfwTerminate();
     return NULL;
   }
