@@ -22,91 +22,110 @@ void convolve(float *signal, int signal_length, float *impulse, int impulse_leng
 }
 
 void HRTF (int prefix, int suffix){
-  // Read Vars
+  // Read variables
   SNDFILE * signal_file, *impulse_file;
   SF_INFO signal_info, impulse_info;
-  
-  // Write Vars
+
+  // Write variables
   SNDFILE *outfile;
   SF_INFO sfinfo;
-  
-  float * signal_buffer, * impulse_buffer, * output_buffer;
-  
-  // Constant output name
-  char signal_file_path[15] = "noise.wav";
-  
-  //printf("Trying to open audio File: %s\n",signal_file_path);
 
-  // Concatenate name  
+  float * signal_buffer, * impulse_buffer, * full_output_buffer, * final_output_buffer;
+
+  // Names
+  char signal_file_path[50];
+  snprintf(signal_file_path, sizeof(signal_file_path), "noise.wav");
+
   char impulse_file_path[50];
-  snprintf(impulse_file_path, sizeof(impulse_file_path), "impulses/%de%03da.wav", prefix, suffix);
+  snprintf(impulse_file_path, sizeof(impulse_file_path), "impulses/%de%03da.wav", prefix, suffix); 
 
-  //printf("%s\n",impulse_file_path);
+  // Open input files
+  signal_file = sf_open(signal_file_path, SFM_READ, &signal_info);
+  impulse_file = sf_open(impulse_file_path, SFM_READ, &impulse_info);
 
-  // Open read files
-  signal_file = sf_open (signal_file_path, SFM_READ, &signal_info);
-  impulse_file = sf_open (impulse_file_path, SFM_READ, &impulse_info);
-  
-  signal_buffer = (float *) malloc (signal_info.frames * signal_info.channels * sizeof(float));
-  impulse_buffer = (float *) malloc (impulse_info.frames * impulse_info.channels * sizeof(float)); //used to be signal_info
-               
-  // Read files
-  int signal_frames, impulse_frames, output_frames;
-  signal_frames = sf_read_float (signal_file, signal_buffer, signal_info.frames*signal_info.channels);
-  impulse_frames = sf_read_float (impulse_file, impulse_buffer, impulse_info.frames*impulse_info.channels);
-
-  // Define channels
-  int signal_channels, impulse_channels;
-  signal_channels = signal_info.channels;
-  impulse_channels = impulse_info.channels;
-  
-  // Size of output
-  output_frames = signal_frames + impulse_frames - 1;
-  output_buffer = (float *) malloc (output_frames * signal_channels * sizeof(float));
-  
-  if (impulse_channels != signal_channels) {
-    printf ("Missmatch channels\n");
-    sf_close (signal_file);
-    sf_close (impulse_file);
-    free (signal_buffer);
-    free (impulse_buffer);
-    free (output_buffer);
-    exit (1);
+  if (!signal_file || !impulse_file) {
+    printf("Error opening input files\n");
+    exit(1);
   }
 
-  // Convolve function
-  convolve (signal_buffer, signal_frames/signal_channels, impulse_buffer, impulse_frames/impulse_channels, output_buffer, signal_channels);
-  
-  // Set audio file info
+  // Memory assign
+  signal_buffer = (float *) malloc(signal_info.frames * signal_info.channels * sizeof(float));
+  impulse_buffer = (float *) malloc(impulse_info.frames * impulse_info.channels * sizeof(float));
+
+  // Read files
+  int signal_samples = sf_read_float(signal_file, signal_buffer, signal_info.frames * signal_info.channels);
+  int impulse_samples = sf_read_float(impulse_file, impulse_buffer, impulse_info.frames * impulse_info.channels);
+
+  // Verify channels
+  if(signal_info.channels != impulse_info.channels) {
+    printf("Mismatch channels\n");
+    sf_close(signal_file);
+    sf_close(impulse_file);
+    free(signal_buffer);
+    free(impulse_buffer);
+    exit(1);
+  }
+  int channels = signal_info.channels;
+  // Frames lenght
+  int signal_frames = signal_samples / channels;
+  int impulse_frames = impulse_samples / channels;
+
+  // Full convolution
+  int full_output_frames = signal_frames + impulse_frames - 1;
+  full_output_buffer = (float *) malloc(full_output_frames * channels * sizeof(float));
+
+  // Convolution
+  convolve(signal_buffer, signal_frames, impulse_buffer, impulse_frames, full_output_buffer, channels);
+
+  // Para obtener una salida de la misma duración que la señal original, se extrae la parte central.
+  // Calculo del offset: se supone que impulse_frames es impar o se usa aproximación
+  int offset = impulse_frames / 2;
+  // Adjust offset
+  int final_output_frames = signal_frames;
+  final_output_buffer = (float *) malloc(final_output_frames * channels * sizeof(float));
+
+  // Convolution for offset part
+  for (int n = 0; n < final_output_frames; n++) {
+    for (int ch = 0; ch < channels; ch++){
+      int full_index = (n + offset) * channels + ch;
+      int final_index = n * channels + ch;
+      // Verify full_index and buffer size
+      if(full_index < full_output_frames * channels)
+       final_output_buffer[final_index] = full_output_buffer[full_index];
+      else
+        final_output_buffer[final_index] = 0.0f;
+    }
+  }
+
+  // Output file setup
   sfinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
-  sfinfo.channels = signal_info.channels;
+  sfinfo.channels = channels;
   sfinfo.samplerate = signal_info.samplerate;
 
-  // Open write file
-  outfile = sf_open("output.wav", SFM_WRITE, &sfinfo);
+  char output_file_path[15] = "output.wav";
+  outfile = sf_open(output_file_path, SFM_WRITE, &sfinfo);
   if (!outfile) {
-    printf("Error opening write file: %s\n", sf_strerror(NULL));
-    free (signal_buffer);
-    free (impulse_buffer);
-    free (output_buffer);
-    exit (1);
+    printf("Error opening output file: %s\n", sf_strerror(NULL));
+    free(signal_buffer);
+    free(impulse_buffer);
+    free(full_output_buffer);
+    free(final_output_buffer);
+    exit(1);
   }
 
-  // Write buffer data in audio file
-  sf_count_t frames_written = sf_writef_float(outfile, output_buffer, output_frames);
+  // Write final buffer
+  sf_count_t frames_written = sf_writef_float(outfile, final_output_buffer, final_output_frames);
   if (frames_written < 0) {
-    printf("Error writting output file: %s\n", sf_strerror(outfile));
+   printf("Error writing file: %s\n", sf_strerror(outfile));
   }
-
-  // Close files
-  sf_close (signal_file);
-  sf_close (impulse_file);
+                                    
+  // Close files and clean memory
+  sf_close(signal_file);
+  sf_close(impulse_file);
   sf_close(outfile);
-  
-  // Free space
-  free (signal_buffer);
-  free (impulse_buffer);
-  free (output_buffer);
-
+  free(signal_buffer);
+  free(impulse_buffer);
+  free(full_output_buffer);
+  free(final_output_buffer);
 }
 

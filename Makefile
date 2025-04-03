@@ -1,7 +1,7 @@
 CC = gcc
 
 CFLAGS = -Wall -Wextra -Werror -ggdb -O2 -std=gnu99 \
-         -fno-omit-frame-pointer -D_FORTIFY_SOURCE=2 -fstack-protector-strong \
+         -fno-omit-frame-pointer -D_FORTIFY_SOURCE=2 -fstack-protector-all \
          -fPIE -pie -fsanitize=address,undefined
 
 LIBS = -lsndfile -lm -lglfw -lpthread
