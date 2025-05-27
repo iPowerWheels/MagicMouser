@@ -120,12 +120,14 @@ Playback is sandboxed via direct invocation (`posix_spawn`) of `pw-play` from `/
 
 ## 📜 License
 
-MIT License — Free to use, modify and share.
+This project is licensed under the GNU General Public License (GPL) version 3.0 or later. You are free to use, modify, and share this software under the terms of this license.
+
+For more details, please refer to the [LICENSE](LICENSE) file in this repository or visit [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html).
 
 ---
 
 ## 🧠 Author
 
-Daniel a.k.a. \[MagicMouser] — Punk engineer exploring audio spatiality and low-level computing. This project is dedicated to all the underground tech nerdZ who want to hear the world around them like never before.
+Daniel a.k.a. \[iPowerWheels] — Punk engineer exploring audio spatiality and low-level computing. This project is dedicated to all the underground tech nerdZ who want to hear the world around them like never before.
 
 > Z-U in stereo 🎧
