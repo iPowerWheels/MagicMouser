@@ -38,7 +38,7 @@ MagicMouser is an interactive spatial audio demo that maps mouse clicks within a
 
    * The selected IR is convolved with a mono audio sample.
    * The result is saved as a stereo `.wav` file.
-   * Playback is handled via [`pw-play`](https://fedoraproject.org/wiki/QA:Testcase_PipeWire_Playback](https://docs.pipewire.org/page_man_pw-cat_1.html), a PipeWire tool for simple audio output.
+   * Playback is handled via [`pw-play`](https://docs.pipewire.org/page_man_pw-cat_1.html), a PipeWire tool for simple audio output.
 
 ---
 
