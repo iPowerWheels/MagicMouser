@@ -14,7 +14,7 @@ MagicMouser is an interactive spatial audio demo that maps mouse clicks within a
 
 * 🚀 **Real-time playback** of spatialized audio
 * 🖱️ Click-based directionality mapping
-* 🌐 333 unique directions simulated using KEMAR HRTFs
+* 🌐 +300 unique directions simulated using KEMAR HRTFs
 * 📏 Scalable window interface — input maps adaptively to direction
 * 📦 Lightweight C implementation using `libsndfile`, `GLFW`, and `PipeWire`/`pw-play`
 
