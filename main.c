@@ -25,7 +25,6 @@
 #include <string.h>
 #include <math.h>
 #include <pthread.h>
-#include <time.h>
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
