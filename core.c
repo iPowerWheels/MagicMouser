@@ -1,9 +1,5 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
 #include <sndfile.h>
 
 void convolve(float *signal, int signal_length, float *impulse, int impulse_length, float *output, int channels) {
