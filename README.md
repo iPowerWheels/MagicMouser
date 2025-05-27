@@ -104,7 +104,7 @@ magicmouser/
 
 ## ✨ Screenshot
 
-![A waveform comparison between original and convolved audio]([URL_de_la_imagen](https://github.com/iPowerWheels/MagicMouser/blob/main/original_vs_convolved.png)
+![A waveform comparison between original and convolved audio](https://github.com/iPowerWheels/MagicMouser/blob/main/original_vs_convolved.png)
 
 Future will includes:
 
