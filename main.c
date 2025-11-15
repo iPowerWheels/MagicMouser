@@ -27,7 +27,6 @@
 #include <pthread.h>
 #include <spawn.h>
 #include <sys/wait.h>
-#include <unistd.h>
 #include <sys/stat.h>
 
 double mouserx, mousery;
@@ -109,7 +108,9 @@ int pixelstoHdeg(){
         }
       flag += 1;
     }
-                    
+      
+  hdegree = 0;
+                                  
   // Assign matrix index to angles
   for (i = 0; i < 37; i++){
     if (i < 18){
