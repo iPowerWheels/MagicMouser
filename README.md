@@ -131,4 +131,4 @@ For more details, please refer to the [LICENSE](LICENSE) file in this repository
 
 Daniel a.k.a. \[iPowerWheels] — Punk engineer exploring audio spatiality and low-level computing. This project is dedicated to all the underground tech nerdZ who want to hear the world around them like never before.
 
-> Z-U in stereo 🎧
+> Z-U in the space
